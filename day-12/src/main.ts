@@ -35,11 +35,11 @@ class Garden {
 
   constructor(private readonly grid: Grid<string>) {
     this.regions = [];
-    let remainingCoordinates: HashSet<Coordinates> = new HashSet(this.grid.coordinates());
+    const remainingCoordinates: HashSet<Coordinates> = new HashSet(this.grid.coordinates());
     while (remainingCoordinates.size > 0) {
       const region = this.findRegion(asSequence(remainingCoordinates).first());
       this.regions.push(region);
-      remainingCoordinates = remainingCoordinates.difference(region.coordinates);
+      remainingCoordinates.deleteAll(region.coordinates);
     }
   }
 
@@ -216,28 +216,39 @@ class HashSet<V extends Hashable>  {
     this.data.set(value.hashCode(), value);  
     return this;
   }
+
+  public addAll(values: Iterable<V>): this {
+    for (const e of values)
+      this.add(e);
+    return this;
+  }
   
   public has(value: V): boolean {
     return this.data.has(value.hashCode());
   }
   
-  delete(value: V): boolean { return this.data.delete(value.hashCode()); }
+  public delete(value: V): this {
+    this.data.delete(value.hashCode());
+    return this;
+  }
   
-  clear(): void { this.data.clear(); }
-    
-  values() { return this.data.values(); }
-  
-  forEach(callbackFn: (value: V) => void): void {
-    this.data.values().forEach(value => callbackFn(value));
+  public deleteAll(values: Iterable<V>): this {
+    for (const value of values)
+      this.delete(value);
+    return this;
   }
 
-  union(other: HashSet<V>): HashSet<V> {
+  public clear(): void { this.data.clear(); }
+    
+  public values(): SetIterator<V> { return this.data.values(); }
+  
+  public union(other: HashSet<V>): HashSet<V> {
     const result = new HashSet(this);
     other.values().forEach(e => result.add(e));
     return result;
   }
 
-  intersection(other: HashSet<V>): HashSet<V> {
+  public intersection(other: HashSet<V>): HashSet<V> {
     const result: HashSet<V> = new HashSet();
     asSequence(this.values())
       .filter(e => other.has(e))
@@ -245,7 +256,7 @@ class HashSet<V extends Hashable>  {
     return result;
   }
 
-  difference(other: HashSet<V>): HashSet<V> {
+  public difference(other: HashSet<V>): HashSet<V> {
     const result: HashSet<V> = new HashSet();
     asSequence(this.values())
       .filter(e => !other.has(e))
@@ -253,19 +264,19 @@ class HashSet<V extends Hashable>  {
     return result;
   }
 
-  symmetricDifference(other: HashSet<V>): HashSet<V> {
+  public symmetricDifference(other: HashSet<V>): HashSet<V> {
     return this.difference(other).union(other.difference(this));
   }
 
-  isSubsetOf(other: HashSet<V>): boolean {
+  public isSubsetOf(other: HashSet<V>): boolean {
     return asSequence(this.values()).all(e => other.has(e));
   }
 
-  isSupersetOf(other: HashSet<V>): boolean {
+  public isSupersetOf(other: HashSet<V>): boolean {
     return other.isSubsetOf(this);
   }
 
-  isDisjointFrom(other: HashSet<V>): boolean {
+  public isDisjointFrom(other: HashSet<V>): boolean {
     return this.intersection(other).size === 0;
   }
 
