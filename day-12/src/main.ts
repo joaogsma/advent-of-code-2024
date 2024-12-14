@@ -211,7 +211,7 @@ class HashSet<V extends Hashable>  {
   }
 
   public get size(): number { return this.data.size; }
-  
+
   public add(value: V): this {
     this.data.set(value.hashCode(), value);  
     return this;
@@ -222,16 +222,16 @@ class HashSet<V extends Hashable>  {
       this.add(e);
     return this;
   }
-  
+
   public has(value: V): boolean {
     return this.data.has(value.hashCode());
   }
-  
+
   public delete(value: V): this {
     this.data.delete(value.hashCode());
     return this;
   }
-  
+
   public deleteAll(values: Iterable<V>): this {
     for (const value of values)
       this.delete(value);
@@ -239,9 +239,9 @@ class HashSet<V extends Hashable>  {
   }
 
   public clear(): void { this.data.clear(); }
-    
+
   public values(): SetIterator<V> { return this.data.values(); }
-  
+
   public union(other: HashSet<V>): HashSet<V> {
     const result = new HashSet(this);
     other.values().forEach(e => result.add(e));
